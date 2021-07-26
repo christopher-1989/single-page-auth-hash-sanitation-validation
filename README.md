@@ -1,5 +1,7 @@
 # Single page authentication project
 
+This project was based heavily on [this tutorial](https://www.loginradius.com/blog/async/hashing-user-passwords-using-bcryptjs/)
+
 ## Project overview
 
 This short project was designed to develop skills for authenticating a user from a database. The User's input is sanitized before being validated for both /signup and /login routes.
