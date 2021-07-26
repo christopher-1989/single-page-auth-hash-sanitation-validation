@@ -4,6 +4,16 @@ const { User } = require("./userModel");
 const router = express.Router();
 const validator = require('validator');
 
+const sanitizeInput = (req, res, next) => {
+    const body = req.body;
+    const sanitizedEmail = validator.escape(body.email);
+    const sanitizedPassword = validator.escape(body.password);
+    console.log(sanitizedEmail);
+    console.log(sanitizedPassword);
+    req.body = {email: sanitizedEmail, password: sanitizedPassword};
+    next();
+}
+
 const validateEmail = (req, res, next) => {
     if (validator.isEmail(req.body.email) === true) {
         next();
@@ -49,7 +59,7 @@ const userAlreadyExists = async (req, res, next) => {
 };
 
 // signup route
-router.post("/signup", validateEmail, passwordRequirements, userAlreadyExists, async (req, res) => {
+router.post("/signup", sanitizeInput, validateEmail, passwordRequirements, userAlreadyExists, async (req, res) => {
   const body = req.body;
   if (!(body.email && body.password)) {
     return res.status(400).send({ error: "Data not formatted properly" });
@@ -64,7 +74,7 @@ router.post("/signup", validateEmail, passwordRequirements, userAlreadyExists, a
 });
 
 // login route
-router.post("/login", validateEmail, passwordRequirements, async (req, res) => {
+router.post("/login", sanitizeInput, validateEmail, passwordRequirements, async (req, res) => {
   const body = req.body;
   const user = await User.findOne({ email: body.email });
   if (user) {
