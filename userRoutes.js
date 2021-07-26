@@ -2,14 +2,24 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const { User } = require("./userModel");
 const router = express.Router();
+const validator = require('validator');
+
+const validateEmail = (req, res, next) => {
+    if (validator.isEmail(req.body.email) === true) {
+        next();
+    } else {
+        res.status(401).json({ error: "Please enter a valid email"})
+        return;
+    }
+};
+
 // signup route
-router.post("/signup", async (req, res) => {
+router.post("/signup", validateEmail, async (req, res) => {
   const body = req.body;
   console.log(body)
   if (!(body.email && body.password)) {
     return res.status(400).send({ error: "Data not formatted properly" });
   }
-
   // createing a new mongoose doc from user data
   const user = new User(body);
   // generate salt to hash password
@@ -20,7 +30,7 @@ router.post("/signup", async (req, res) => {
 });
 
 // login route
-router.post("/login", async (req, res) => {
+router.post("/login", validateEmail, async (req, res) => {
   const body = req.body;
   const user = await User.findOne({ email: body.email });
   if (user) {
