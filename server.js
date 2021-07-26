@@ -9,7 +9,7 @@ const {
   PORT = 3000,
   NODE_ENV = 'development',
   SESS_NAME = 'sid',
-  SESS_SECRET = 'this is a test//secret!', //TODO: strengthen secret in prod
+  SESS_SECRET = '1NcM8XBdaoM',
   SESSION_LIFETIME = TWO_HOURS,
 } = process.env;
 
