@@ -8,15 +8,49 @@ const validateEmail = (req, res, next) => {
     if (validator.isEmail(req.body.email) === true) {
         next();
     } else {
+        //Don't need to respond in practice, but rather complete in client browser
         res.status(401).json({ error: "Please enter a valid email"})
         return;
     }
 };
 
+const passwordRequirements = (req, res, next) => {
+    const requirements = { 
+        minLength: 6, 
+        minLowercase: 1, 
+        minUppercase: 1, 
+        minNumbers: 1, 
+        minSymbols: 2, 
+        returnScore: false, 
+        pointsPerUnique: 1, 
+        pointsPerRepeat: 0.5, 
+        pointsForContainingLower: 10, 
+        pointsForContainingUpper: 10, 
+        pointsForContainingNumber: 10, 
+        pointsForContainingSymbol: 10 
+    }
+    if(validator.isStrongPassword(req.body.password, requirements) === true) {
+        next();
+    } else {
+        //Don't need to respond in practice, but rather complete in client browser
+        res.status(401).json({ error: `Please enter a stronger password. Passwords should be at least ${requirements.minLength} characters long, have at least ${requirements.minLowercase} lowercase, ${requirements.minUppercase} uppercase, ${requirements.minNumbers} number, and ${requirements.minSymbols} symbol`})
+        return;
+    }
+};
+
+const userAlreadyExists = async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+        //Don't need to respond in practice, but rather complete in client browser
+        res.status(401).json({ error: `User already exists`});
+        return;
+    } 
+    next();
+};
+
 // signup route
-router.post("/signup", validateEmail, async (req, res) => {
+router.post("/signup", validateEmail, passwordRequirements, userAlreadyExists, async (req, res) => {
   const body = req.body;
-  console.log(body)
   if (!(body.email && body.password)) {
     return res.status(400).send({ error: "Data not formatted properly" });
   }
@@ -30,7 +64,7 @@ router.post("/signup", validateEmail, async (req, res) => {
 });
 
 // login route
-router.post("/login", validateEmail, async (req, res) => {
+router.post("/login", validateEmail, passwordRequirements, async (req, res) => {
   const body = req.body;
   const user = await User.findOne({ email: body.email });
   if (user) {
