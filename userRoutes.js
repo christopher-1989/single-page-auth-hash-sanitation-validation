@@ -70,6 +70,7 @@ router.post("/signup", sanitizeInput, validateEmail, passwordRequirements, userA
   const salt = await bcrypt.genSalt(10);
   // now we set user password to hashed password
   user.password = await bcrypt.hash(user.password, salt);
+  req.session.userId = user._id;
   user.save().then((doc) => res.status(201).send(doc));
 });
 
